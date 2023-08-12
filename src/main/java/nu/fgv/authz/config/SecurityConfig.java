@@ -1,10 +1,7 @@
-package nu.fgv.register.config;
+package nu.fgv.authz.config;
 
-import nu.fgv.register.security.FederatedIdentityConfigurer;
-import nu.fgv.register.security.UserRepositoryOAuth2UserHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -12,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
@@ -19,19 +17,27 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain defaultSecurityFilterChain(final HttpSecurity http) throws Exception {
-        final FederatedIdentityConfigurer federatedIdentityConfigurer = new FederatedIdentityConfigurer()
-                .oauth2UserHandler(new UserRepositoryOAuth2UserHandler());
-
         http
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers("/assets/**", "/webjars/**", "/login").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .formLogin(Customizer.withDefaults())
-                .apply(federatedIdentityConfigurer);
+                .formLogin(formLogin ->
+                        formLogin
+                                .loginPage("/login")
+                )
+                .oauth2Login(oauth2Login ->
+                        oauth2Login
+                                .loginPage("/login")
+                                .successHandler(authenticationSuccessHandler())
+                );
 
         return http.build();
+    }
+
+    private AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return new FederatedIdentityAuthenticationSuccessHandler();
     }
 
     @Bean
@@ -42,5 +48,15 @@ public class SecurityConfig {
                 .roles("USER")
                 .build();
         return new InMemoryUserDetailsManager(user);
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 }

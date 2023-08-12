@@ -25,5 +25,13 @@ CREATE TABLE IF NOT EXISTS oauth2_authorization
     refresh_token_issued_at         TIMESTAMP           DEFAULT NULL,
     refresh_token_expires_at        TIMESTAMP           DEFAULT NULL,
     refresh_token_metadata          BLOB                DEFAULT NULL,
+    user_code_value                 BLOB                DEFAULT NULL,
+    user_code_issued_at             TIMESTAMP           DEFAULT NULL,
+    user_code_expires_at            TIMESTAMP           DEFAULT NULL,
+    user_code_metadata              BLOB                DEFAULT NULL,
+    device_code_value               BLOB                DEFAULT NULL,
+    device_code_issued_at           TIMESTAMP           DEFAULT NULL,
+    device_code_expires_at          TIMESTAMP           DEFAULT NULL,
+    device_code_metadata            BLOB                DEFAULT NULL,
     CONSTRAINT pk_oauth2_authz PRIMARY KEY (id)
 );

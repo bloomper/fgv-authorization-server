@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS oauth2_registered_client
     client_authentication_methods   VARCHAR(1000)       NOT NULL,
     authorization_grant_types       VARCHAR(1000)       NOT NULL,
     redirect_uris                   VARCHAR(1000)       DEFAULT NULL,
+    post_logout_redirect_uris       VARCHAR(1000)       DEFAULT NULL,
     scopes                          VARCHAR(1000)       NOT NULL,
     client_settings                 VARCHAR(2000)       NOT NULL,
     token_settings                  VARCHAR(2000)       NOT NULL,

@@ -1,4 +1,4 @@
-package nu.fgv.register.jose;
+package nu.fgv.authz.jose;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;

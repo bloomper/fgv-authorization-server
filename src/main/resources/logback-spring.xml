@@ -4,9 +4,9 @@
         <encoder>
             <pattern>%d [%thread] [%level] [%logger] %msg%n</pattern>
         </encoder>
-        <file>${LOG_DIR}/spexregister-authz-application.log</file>
+        <file>${LOG_DIR}/fgv-authz-application.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_DIR}/%d{yyyy-MM, aux}/spexregister-authz-application-%d{yyyy-MM-dd}.log.gz
+            <fileNamePattern>${LOG_DIR}/%d{yyyy-MM, aux}/fgv-authz-application-%d{yyyy-MM-dd}.log.gz
             </fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>

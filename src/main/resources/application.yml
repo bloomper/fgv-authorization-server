@@ -7,37 +7,26 @@ management:
       exposure:
         include: health,metrics,info
 
-spring:
-  jpa:
-    open-in-view: false
-    properties:
-      jakarta:
-        persistence:
-          sharedCache:
-            mode: UNSPECIFIED
-
-  h2:
-    console:
-      enabled: false
-
-  security:
-    oauth2:
-      client:
-        registration:
-          google-idp:
-            provider: google
-            client-id: ${GOOGLE_CLIENT_ID:google-client-id}
-            client-secret: ${GOOGLE_CLIENT_SECRET:google-client-secret}
-            scope: openid, https://www.googleapis.com/auth/userinfo.profile, https://www.googleapis.com/auth/userinfo.email
-            client-name: Sign in with Google
-          github-idp:
-            provider: github
-            client-id: ${GITHUB_CLIENT_ID:github-client-id}
-            client-secret: ${GITHUB_CLIENT_SECRET:github-client-secret}
-            scope: user:email, read:user
-            client-name: Sign in with GitHub
-        provider:
-          google:
-            user-name-attribute: email
-          github:
-            user-name-attribute: login
+fgv:
+  clients:
+    spexregister:
+      id: efd9f1fb-387f-4b23-9772-ceab229dca85
+      client-id: spexregister
+      client-secret: {noop}a-very-secret-key
+      client-authentication-methods:
+        - client_secret_basic
+      authorization-grant-types:
+        - authorization_code
+        - refresh_token
+        - client_credentials
+      redirect-uris:
+        - http://127.0.0.1:8080/login/oauth2/code/spexregister-client-oidc
+        - http://127.0.0.1:8080/authorized
+      scopes:
+        - openid
+        - profile
+        - email
+        - read
+        - write
+      client-settings:
+        require-authorization-consent: true

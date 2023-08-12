@@ -1,4 +1,4 @@
-package nu.fgv.register.jose;
+package nu.fgv.authz.jose;
 
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;

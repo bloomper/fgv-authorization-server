@@ -1,4 +1,4 @@
-package nu.fgv.register.web;
+package nu.fgv.authz.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

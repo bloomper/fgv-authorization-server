@@ -4,4 +4,4 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
-rootProject.name = 'spexregister-authorization-server'
+rootProject.name = 'fgv-authorization-server'

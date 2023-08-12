@@ -1,12 +1,10 @@
-package nu.fgv.register.config;
+package nu.fgv.authz.config;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import nu.fgv.register.jose.Jwks;
-import nu.fgv.register.security.FederatedIdentityConfigurer;
-import nu.fgv.register.security.FederatedIdentityIdTokenCustomizer;
+import nu.fgv.authz.jose.Jwks;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -14,10 +12,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
@@ -30,11 +26,10 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
-import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Configuration(proxyBeanMethods = false)
@@ -44,47 +39,40 @@ public class AuthzServerConfig {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authorizationServerSecurityFilterChain(final HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-                .oidc(Customizer.withDefaults());
-        http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-        http.apply(new FederatedIdentityConfigurer());
 
-        return http.build();
+        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
+
+        return http.formLogin(Customizer.withDefaults()).build();
     }
 
     @Bean
-    public OAuth2TokenCustomizer<JwtEncodingContext> idTokenCustomizer() {
-        return new FederatedIdentityIdTokenCustomizer();
-    }
-
-    // @formatter:off
-    @Bean
-    public RegisteredClientRepository registeredClientRepository(final JdbcTemplate jdbcTemplate) {
-        // TODO: Is this correct or should it be statically defined in config?
-        final RegisteredClient registeredClient = RegisteredClient
-                .withId(UUID.randomUUID().toString())
-                .clientId("spexregister")
-                .clientSecret("{noop}secret")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc")
-                .redirectUri("http://127.0.0.1:8080/authorized")
-                .scope(OidcScopes.OPENID)
-                .scope(OidcScopes.PROFILE)
-                .scope("message.read")
-                .scope("message.write")
-                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
-                .build();
-
+    public RegisteredClientRepository registeredClientRepository(final JdbcTemplate jdbcTemplate, final FgvConfig fgvConfig) {
         final JdbcRegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
+        final List<RegisteredClient> registeredClients = new ArrayList<>();
 
-        registeredClientRepository.save(registeredClient);
+        fgvConfig.getClients().values().forEach(c ->
+                registeredClients.add(
+                        RegisteredClient
+                                .withId(c.getId())
+                                .clientId(c.getClientId())
+                                .clientSecret(c.getClientSecret())
+                                .clientAuthenticationMethods((authenticationMethods) ->
+                                        c.getClientAuthenticationMethods().forEach(authenticationMethod ->
+                                                authenticationMethods.add(resolveClientAuthenticationMethod(authenticationMethod))))
+                                .authorizationGrantTypes((grantTypes) ->
+                                        c.getAuthorizationGrantTypes().forEach(grantType ->
+                                                grantTypes.add(resolveAuthorizationGrantType(grantType))))
+                                .redirectUris((uris) -> uris.addAll(c.getRedirectUris()))
+                                .scopes((scopes) -> scopes.addAll(c.getScopes()))
+                                .clientSettings(ClientSettings.withSettings(c.getClientSettings()).build())
+                                .build()
+                )
+        );
+
+        registeredClients.forEach(registeredClientRepository::save);
 
         return registeredClientRepository;
     }
-    // @formatter:on
 
     @Bean
     public OAuth2AuthorizationService authorizationService(final JdbcTemplate jdbcTemplate, final RegisteredClientRepository registeredClientRepository) {
@@ -114,4 +102,25 @@ public class AuthzServerConfig {
         return AuthorizationServerSettings.builder().build();
     }
 
+    private static AuthorizationGrantType resolveAuthorizationGrantType(final String authorizationGrantType) {
+        if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equals(authorizationGrantType)) {
+            return AuthorizationGrantType.AUTHORIZATION_CODE;
+        } else if (AuthorizationGrantType.CLIENT_CREDENTIALS.getValue().equals(authorizationGrantType)) {
+            return AuthorizationGrantType.CLIENT_CREDENTIALS;
+        } else if (AuthorizationGrantType.REFRESH_TOKEN.getValue().equals(authorizationGrantType)) {
+            return AuthorizationGrantType.REFRESH_TOKEN;
+        }
+        return new AuthorizationGrantType(authorizationGrantType);
+    }
+
+    private static ClientAuthenticationMethod resolveClientAuthenticationMethod(final String clientAuthenticationMethod) {
+        if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.getValue().equals(clientAuthenticationMethod)) {
+            return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
+        } else if (ClientAuthenticationMethod.CLIENT_SECRET_POST.getValue().equals(clientAuthenticationMethod)) {
+            return ClientAuthenticationMethod.CLIENT_SECRET_POST;
+        } else if (ClientAuthenticationMethod.NONE.getValue().equals(clientAuthenticationMethod)) {
+            return ClientAuthenticationMethod.NONE;
+        }
+        return new ClientAuthenticationMethod(clientAuthenticationMethod);
+    }
 }

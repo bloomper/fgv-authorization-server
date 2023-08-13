@@ -10,23 +10,23 @@ management:
 fgv:
   clients:
     spexregister:
-      id: efd9f1fb-387f-4b23-9772-ceab229dca85
-      client-id: spexregister
-      client-secret: {noop}a-very-secret-key
+      id: "efd9f1fb-387f-4b23-9772-ceab229dca85"
+      client-id: "spexregister"
+      client-secret: "{noop}a-very-secret-key"
       client-authentication-methods:
-        - client_secret_basic
+        - "client_secret_basic"
       authorization-grant-types:
-        - authorization_code
-        - refresh_token
-        - client_credentials
+        - "authorization_code"
+        - "refresh_token"
       redirect-uris:
-        - http://127.0.0.1:8080/login/oauth2/code/spexregister-client-oidc
-        - http://127.0.0.1:8080/authorized
+        - "http://127.0.0.1:8080/login/oauth2/code/spexregister-client-oidc"
+        - "http://127.0.0.1:8080/authorized"
       scopes:
-        - openid
-        - profile
-        - email
-        - read
-        - write
+        - "openid"
+        - "profile"
+        - "email"
+        - "user.read"
+        - "user.write"
       client-settings:
-        require-authorization-consent: true
+        require-authorization-consent: false
+        require-proof-key: true

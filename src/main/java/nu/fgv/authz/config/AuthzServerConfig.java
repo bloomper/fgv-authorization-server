@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Configuration(proxyBeanMethods = false)
+@Configuration
 public class AuthzServerConfig {
 
     @Bean

@@ -8,6 +8,16 @@ management:
         include: health,metrics,info
 
 fgv:
+  default-password-encoder-prefix: "bcrypt"
+  legacy-password-encoder-prefix: "legacy"
+  password-encodings:
+    legacy:
+      settings:
+        algorithm: "SHA-512"
+        number-of-iterations: 20
+    bcrypt:
+      settings:
+        strength: 10
   clients:
     spexregister:
       id: "efd9f1fb-387f-4b23-9772-ceab229dca85"

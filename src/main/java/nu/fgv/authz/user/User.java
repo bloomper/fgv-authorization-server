@@ -48,9 +48,6 @@ public class User extends AbstractAuditable implements Serializable {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "password_salt_legacy")
-    private String passwordSaltLegacy;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
     private State state;

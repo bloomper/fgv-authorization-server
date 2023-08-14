@@ -39,6 +39,8 @@ fgv:
       redirect-uris:
         - "http://127.0.0.1:8080/login/oauth2/code/spexregister-client-oidc"
         - "http://127.0.0.1:8080/authorized"
+      post-logout-redirect-uris:
+        - "http://127.0.0.1:8080/logged-out"
       scopes:
         - "openid"
         - "profile"

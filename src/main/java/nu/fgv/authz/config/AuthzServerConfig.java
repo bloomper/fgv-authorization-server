@@ -84,6 +84,7 @@ public class AuthzServerConfig {
                                         c.getAuthorizationGrantTypes().forEach(grantType ->
                                                 grantTypes.add(resolveAuthorizationGrantType(grantType))))
                                 .redirectUris((uris) -> uris.addAll(c.getRedirectUris()))
+                                .postLogoutRedirectUris((uris) -> uris.addAll(c.getPostLogoutRedirectUris()))
                                 .scopes((scopes) -> scopes.addAll(c.getScopes()))
                                 .clientSettings(ClientSettings.withSettings(c.getClientSettings()).build())
                                 .build()

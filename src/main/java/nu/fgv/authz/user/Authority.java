@@ -35,7 +35,7 @@ public class Authority extends AbstractAuditable implements Serializable {
     private Integer id;
 
     @Column(unique = true)
-    private String role;
+    private String name;
 
     @Override
     public boolean equals(final Object o) {

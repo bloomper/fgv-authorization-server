@@ -7,6 +7,14 @@ management:
       exposure:
         include: health,metrics,info
 
+spring:
+  flyway:
+    table: flyway_schema_history_authz
+    baseline-on-migrate: true
+
+  jpa:
+    open-in-view: false
+
 fgv:
   default-password-encoder-prefix: "bcrypt"
   legacy-password-encoder-prefix: "legacy"

@@ -21,14 +21,6 @@
                 <div>
                     <h3>Welcome!</h3>
                 </div>
-                <a href="/oauth2/authorization/google-idp" role="link" class="btn btn-primary w-100 text-white mb-1"><i
-                        class="fab fa-google me-2"></i> Sign in with Google</a>
-                <a href="/oauth2/authorization/facebook-idp" role="link" class="btn btn-primary w-100 text-white mb-1"><i
-                        class="fab fa-facebook me-2"></i> Sign in with Facebook</a>
-                <a href="/oauth2/authorization/twitter-idp" role="link" class="btn btn-primary w-100 text-white mb-1"><i
-                        class="fab fa-twitter me-2"></i> Sign in with Twitter</a>
-                <a href="/oauth2/authorization/github-idp" role="link" class="btn btn-primary w-100 text-white mb-1"><i
-                        class="fab fa-github me-2"></i> Sign in with Github</a>
                 <div th:if="${param.error}" class="alert alert-danger" role="alert">
                     Invalid username or password.
                 </div>
@@ -37,13 +29,13 @@
                 </div>
                 <div class="mt-4">
                     <p>
-                        Or sign by username/password
+                        Sign in by username/password
                     </p>
                 </div>
                 <form class="form-signin" method="post" th:action="@{/login}">
-                    <input class="form-control rounded-0 mb-3" name="" placeholder="Enter username"/>
-                    <input class="form-control rounded-0 mb-3" type="password" name="" placeholder="Enter password"/>
-                    <button class="btn btn-info mt-4 w-100" type="submit">Submit</button>
+                    <input class="form-control rounded-0 mb-3" type="text" name="username" placeholder="Enter username"/>
+                    <input class="form-control rounded-0 mb-3" type="password" name="password" placeholder="Enter password"/>
+                    <button class="btn btn-info mt-4 w-100" type="submit">Sign in</button>
                 </form>
             </div>
         </div>

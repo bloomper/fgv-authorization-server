@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class LegacyPasswordEncoder implements PasswordEncoder {
 
-    private final Pattern LEGACY_PATTERN = Pattern.compile("\\$(.+)\\$(.+)");
+    private static final Pattern LEGACY_PATTERN = Pattern.compile("\\$(.+)\\$(.+)");
 
     private final String algorithm;
     private final int numberOfIterations;
@@ -38,25 +38,28 @@ public class LegacyPasswordEncoder implements PasswordEncoder {
             log.warn("Empty encoded password");
             return false;
         }
-        if (!LEGACY_PATTERN.matcher(encodedPassword).matches()) {
+
+        final Matcher matcher = LEGACY_PATTERN.matcher(encodedPassword);
+
+        if (!matcher.matches()) {
             log.warn("Encoded password does not look like it is a legacy password");
             return false;
-        }
-        try {
-            final Matcher matcher = LEGACY_PATTERN.matcher(encodedPassword);
-            final String salt = matcher.group(1);
-            final String cryptedPassword = matcher.group(2);
-            final MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
-            String digest = String.format("%s%s", rawPassword, salt);
+        } else {
+            try {
+                final String salt = matcher.group(1);
+                final String cryptedPassword = matcher.group(2);
+                final MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
+                String digest = String.format("%s%s", rawPassword, salt);
 
-            for (int i = 0; i < numberOfIterations; i++) {
-                digest = encodePassword(messageDigest, digest);
+                for (int i = 0; i < numberOfIterations; i++) {
+                    digest = encodePassword(messageDigest, digest);
+                }
+
+                return digest.equals(cryptedPassword);
+            } catch (final NoSuchAlgorithmException e) {
+                log.error("Unknown algorithm {} specified", algorithm, e);
+                throw new IllegalArgumentException(e);
             }
-
-            return digest.equals(cryptedPassword);
-        } catch (final NoSuchAlgorithmException e) {
-            log.error("Unknown algorithm {} specified", algorithm, e);
-            throw new IllegalArgumentException(e);
         }
     }
 

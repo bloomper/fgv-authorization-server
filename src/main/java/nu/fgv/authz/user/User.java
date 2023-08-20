@@ -42,8 +42,8 @@ public class User extends AbstractAuditable implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "uid", unique = true, nullable = false)
-    private String uid;
+    @Column(name = "username", unique = true, nullable = false)
+    private String username;
 
     @Column(name = "password")
     private String password;
@@ -62,6 +62,9 @@ public class User extends AbstractAuditable implements Serializable {
             }
     )
     private Set<Authority> authorities;
+
+    @Column(name = "federated")
+    private boolean federated;
 
     @Override
     public boolean equals(final Object o) {

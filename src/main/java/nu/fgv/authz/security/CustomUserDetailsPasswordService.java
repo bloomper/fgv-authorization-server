@@ -18,7 +18,7 @@ public class CustomUserDetailsPasswordService implements UserDetailsPasswordServ
     @Override
     public UserDetails updatePassword(final UserDetails user, final String newPassword) {
         return userRepository
-                .findByUid(user.getUsername())
+                .findByUsername(user.getUsername())
                 .map(u -> {
                     u.setPassword(newPassword);
                     return userRepository.save(u);
